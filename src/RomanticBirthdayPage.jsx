@@ -19,7 +19,7 @@ const RomanticBirthdayPage = () => {
       
       // Function to start music
       const startMusic = () => {
-        if (!isPlaying && audioRef.current) {
+        if (audioRef.current) {
           audioRef.current.play().then(() => {
             setIsPlaying(true);
             console.log('Music started successfully!');
@@ -46,7 +46,7 @@ const RomanticBirthdayPage = () => {
       
       // Handle visibility change
       const handleVisibilityChange = () => {
-        if (!document.hidden && !isPlaying && audioRef.current) {
+        if (!document.hidden && audioRef.current) {
           startMusic();
         }
       };
@@ -54,69 +54,67 @@ const RomanticBirthdayPage = () => {
       // Try immediate autoplay first
       startMusic();
       
-      // If immediate autoplay fails, set up interaction listeners
-      if (!isPlaying) {
-        // Add event listeners for immediate music start on any interaction
-        document.addEventListener('mousedown', startMusic);
-        document.addEventListener('mousemove', startMusic);
-        document.addEventListener('click', startMusic);
-        document.addEventListener('touchstart', startMusic);
-        document.addEventListener('keydown', startMusic);
-        document.addEventListener('scroll', startMusic);
-        document.addEventListener('wheel', startMusic);
-        window.addEventListener('focus', startMusic);
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        
-        // Also try to start music when the page becomes visible
-        if (document.visibilityState === 'visible') {
-          setTimeout(startMusic, 100);
+      // Set up interaction listeners for music start
+      // Add event listeners for immediate music start on any interaction
+      document.addEventListener('mousedown', startMusic);
+      document.addEventListener('mousemove', startMusic);
+      document.addEventListener('click', startMusic);
+      document.addEventListener('touchstart', startMusic);
+      document.addEventListener('keydown', startMusic);
+      document.addEventListener('scroll', startMusic);
+      document.addEventListener('wheel', startMusic);
+      window.addEventListener('focus', startMusic);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      // Also try to start music when the page becomes visible
+      if (document.visibilityState === 'visible') {
+        setTimeout(startMusic, 100);
+      }
+      
+      // Try multiple times with delays (sometimes helps with autoplay)
+      setTimeout(startMusic, 500);
+      setTimeout(startMusic, 1000);
+      setTimeout(startMusic, 2000);
+      
+      // Try to start music when window gains focus
+      window.addEventListener('focus', startMusic);
+      
+      // Try to start music on any DOM interaction
+      document.addEventListener('pointerdown', startMusic);
+      document.addEventListener('pointermove', startMusic);
+      
+      // Try to start music on hover events (very aggressive approach)
+      const allElements = document.querySelectorAll('button, div, span, p, h1, h2, h3');
+      allElements.forEach(element => {
+        element.addEventListener('mouseenter', startMusic);
+      });
+      
+      // Try to start music on any mouse movement anywhere on the page
+      document.addEventListener('mouseover', startMusic);
+      
+      // Very aggressive approach - try to start music on every mouse movement
+      let mouseMoveAttempts = 0;
+      const aggressiveMouseMove = () => {
+        mouseMoveAttempts++;
+        if (mouseMoveAttempts <= 10) { // Limit attempts to avoid performance issues
+          startMusic();
         }
-        
-        // Try multiple times with delays (sometimes helps with autoplay)
-        setTimeout(startMusic, 500);
-        setTimeout(startMusic, 1000);
-        setTimeout(startMusic, 2000);
-        
-        // Try to start music when window gains focus
-        window.addEventListener('focus', startMusic);
-        
-        // Try to start music on any DOM interaction
-        document.addEventListener('pointerdown', startMusic);
-        document.addEventListener('pointermove', startMusic);
-        
-        // Try to start music on hover events (very aggressive approach)
-        const allElements = document.querySelectorAll('button, div, span, p, h1, h2, h3');
-        allElements.forEach(element => {
-          element.addEventListener('mouseenter', startMusic);
+        if (mouseMoveAttempts > 10) {
+          document.removeEventListener('mousemove', aggressiveMouseMove);
+        }
+      };
+      document.addEventListener('mousemove', aggressiveMouseMove);
+      
+      // Try to start music when page is fully loaded
+      if (document.readyState === 'complete') {
+        setTimeout(startMusic, 100);
+      } else {
+        window.addEventListener('load', () => {
+          setTimeout(startMusic, 100);
         });
-        
-        // Try to start music on any mouse movement anywhere on the page
-        document.addEventListener('mouseover', startMusic);
-        
-        // Very aggressive approach - try to start music on every mouse movement
-        let mouseMoveAttempts = 0;
-        const aggressiveMouseMove = () => {
-          mouseMoveAttempts++;
-          if (mouseMoveAttempts <= 10) { // Limit attempts to avoid performance issues
-            startMusic();
-          }
-          if (mouseMoveAttempts > 10) {
-            document.removeEventListener('mousemove', aggressiveMouseMove);
-          }
-        };
-        document.addEventListener('mousemove', aggressiveMouseMove);
-        
-        // Try to start music when page is fully loaded
-        if (document.readyState === 'complete') {
-          setTimeout(startMusic, 100);
-        } else {
-          window.addEventListener('load', () => {
-            setTimeout(startMusic, 100);
-          });
-        }
       }
     }
-  }, []);
+  }, []); // Empty dependency array since we only want this to run once
 
   const toggleMusic = () => {
     if (isPlaying) {
@@ -125,16 +123,6 @@ const RomanticBirthdayPage = () => {
       console.log('Music paused');
     } else {
       forceStartMusic();
-    }
-  };
-
-  // Helper function to start music if not already playing
-  const ensureMusicPlaying = () => {
-    if (!isPlaying && audioRef.current) {
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-        console.log('Music started via button interaction');
-      }).catch(err => console.log('Music start failed:', err));
     }
   };
 
@@ -224,7 +212,7 @@ const RomanticBirthdayPage = () => {
           <div className="absolute inset-0 bg-gradient-to-tl from-purple-200/5 via-transparent to-pink-200/5 pointer-events-none"></div>
           
           {/* Subtle dancing area highlight */}
-          <div className="absolute inset-0 bg-gradient-radial from-pink-100/20 via-transparent to-transparent pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-100/20 via-transparent to-transparent pointer-events-none"></div>
           
           <div className="relative w-full h-full">
             {/* Dancing Couple - Multiple layers for 3D effect - MADE MUCH MORE VISIBLE */}
@@ -345,7 +333,7 @@ const RomanticBirthdayPage = () => {
             </div>
             
             {/* Dancing couple spotlight effect */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-pink-300/30 via-pink-200/20 to-transparent rounded-full animate-pulse pointer-events-none z-5"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-pink-300/30 via-pink-200/20 to-transparent rounded-full animate-pulse pointer-events-none z-5"></div>
             
             {/* EDGE DANCERS - VISIBLE FROM ALL ANGLES */}
             <div className="absolute top-0 left-0 text-6xl opacity-75 animate-dance transform rotate-45 z-10">
@@ -375,7 +363,10 @@ const RomanticBirthdayPage = () => {
               💃
             </div>
             
-         
+            {/* SPECIAL ANNOUNCEMENT - DANCING COUPLE IS HERE */}
+            <div className="absolute top-20 left-1/2 transform -translate-x-1/2 text-2xl font-bold text-pink-600 opacity-90 z-30 pointer-events-none bg-white/80 px-4 py-2 rounded-full shadow-lg">
+              💃🕺 Dancing Couple is Here! 💃🕺
+            </div>
           </div>
         </div>
         
