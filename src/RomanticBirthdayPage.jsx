@@ -19,7 +19,7 @@ const RomanticBirthdayPage = () => {
       
       // Function to start music
       const startMusic = () => {
-        if (audioRef.current) {
+        if (audioRef.current && audioRef.current.paused) {
           audioRef.current.play().then(() => {
             setIsPlaying(true);
             console.log('Music started successfully!');
@@ -115,16 +115,6 @@ const RomanticBirthdayPage = () => {
       }
     }
   }, []); // Empty dependency array since we only want this to run once
-
-  const toggleMusic = () => {
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-      console.log('Music paused');
-    } else {
-      forceStartMusic();
-    }
-  };
 
   // Enhanced function that tries multiple times to start music
   const forceStartMusic = () => {
@@ -363,10 +353,6 @@ const RomanticBirthdayPage = () => {
               💃
             </div>
             
-            {/* SPECIAL ANNOUNCEMENT - DANCING COUPLE IS HERE */}
-            <div className="absolute top-20 left-1/2 transform -translate-x-1/2 text-2xl font-bold text-pink-600 opacity-90 z-30 pointer-events-none bg-white/80 px-4 py-2 rounded-full shadow-lg">
-              💃🕺 Dancing Couple is Here! 💃🕺
-            </div>
           </div>
         </div>
         
@@ -399,115 +385,102 @@ const RomanticBirthdayPage = () => {
         <div className="max-w-4xl w-full">
           {/* Main Card */}
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12 text-center transform hover:scale-105 transition-all duration-500">
-            
-            {/* Music Control - Only show when music is not playing */}
-            {!isPlaying && (
-              <div className="absolute top-4 right-4">
+              
+              {/* Main Heading */}
+              <div className="mb-8 animate-fadeIn">
+                <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-pink-500 via-red-500 to-pink-600 bg-clip-text text-transparent mb-4">
+                  Happy Birthday Sameer
+                </h1>
+                <h2 className="text-2xl md:text-4xl font-semibold text-pink-600 mb-2">
+                  My Love ❤️
+                </h2>
+                <p className="text-lg md:text-xl text-gray-600">
+                  from <span className="font-semibold text-pink-500">Matina – Your Darling</span>
+                </p>
+              </div>
+
+              {/* Blessings Section */}
+              <div className="mb-10 animate-fadeIn animation-delay-500">
+                <div className="bg-gradient-to-r from-pink-50 to-red-50 rounded-2xl p-6 border border-pink-200">
+                  <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+                    "May your day be filled with endless joy, love, and laughter. 
+                    You are my heart, my life, my everything. Every moment with you 
+                    is a blessing, and I'm grateful for every smile, every laugh, 
+                    and every precious memory we share. Happy Birthday, my love ❤️"
+                  </p>
+                </div>
+              </div>
+
+              {/* Interactive Buttons - First Row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-fadeIn animation-delay-1000">
                 <button
-                  onClick={toggleMusic}
-                  className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold py-3 px-6 rounded-full shadow-lg transition-all duration-300 hover:scale-110 animate-pulse"
-                  title="Click to start the romantic Titanic theme music"
+                  onClick={handleHug}
+                  className="bg-gradient-to-r from-pink-400 to-pink-500 hover:from-pink-500 hover:to-pink-600 text-white font-semibold py-4 px-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
                 >
-                  🎵 Start Music 🎵
+                  Come 🤗
+                </button>
+                
+                <button
+                  onClick={handleKiss}
+                  className="bg-gradient-to-r from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white font-semibold py-4 px-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
+                >
+                  Let's 💋
+                </button>
+                
+                <button
+                  onClick={handleLove}
+                  className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold py-4 px-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
+                >
+                  My Love ❤️
+                </button>
+
+                <button
+                  onClick={handleFlowers}
+                  className="bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white font-semibold py-4 px-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
+                >
+                  Bloom like 🌸
                 </button>
               </div>
-            )}
 
-            {/* Main Heading */}
-            <div className="mb-8 animate-fadeIn">
-              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-pink-500 via-red-500 to-pink-600 bg-clip-text text-transparent mb-4">
-                Happy Birthday Sameer
-              </h1>
-              <h2 className="text-2xl md:text-4xl font-semibold text-pink-600 mb-2">
-                My Love ❤️
-              </h2>
-              <p className="text-lg md:text-xl text-gray-600">
-                from <span className="font-semibold text-pink-500">Matina – Your Darling</span>
-              </p>
-            </div>
-
-            {/* Blessings Section */}
-            <div className="mb-10 animate-fadeIn animation-delay-500">
-              <div className="bg-gradient-to-r from-pink-50 to-red-50 rounded-2xl p-6 border border-pink-200">
-                <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-                  "May your day be filled with endless joy, love, and laughter. 
-                  You are my heart, my life, my everything. Every moment with you 
-                  is a blessing, and I'm grateful for every smile, every laugh, 
-                  and every precious memory we share. Happy Birthday, my love ❤️"
-                </p>
+              {/* Interactive Buttons - Second Row */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8 animate-fadeIn animation-delay-1200">
+                <button
+                  onClick={handleStars}
+                  className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
+                >
+                  Shine like ⭐
+                </button>
+                
+                <button
+                  onClick={handleButterflies}
+                  className="bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
+                >
+                  Fly like 🦋
+                </button>
+                
+                <button
+                  onClick={handleFireworks}
+                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
+                >
+                  Sparkle like 🎆
+                </button>
               </div>
-            </div>
 
-            {/* Interactive Buttons - First Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-fadeIn animation-delay-1000">
-              <button
-                onClick={handleHug}
-                className="bg-gradient-to-r from-pink-400 to-pink-500 hover:from-pink-500 hover:to-pink-600 text-white font-semibold py-4 px-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
-              >
-                Come 🤗
-              </button>
-              
-              <button
-                onClick={handleKiss}
-                className="bg-gradient-to-r from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white font-semibold py-4 px-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
-              >
-                Let's 💋
-              </button>
-              
-              <button
-                onClick={handleLove}
-                className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold py-4 px-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
-              >
-                My Love ❤️
-              </button>
-
-              <button
-                onClick={handleFlowers}
-                className="bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white font-semibold py-4 px-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
-              >
-                Bloom like 🌸
-              </button>
-            </div>
-
-            {/* Interactive Buttons - Second Row */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8 animate-fadeIn animation-delay-1200">
-              <button
-                onClick={handleStars}
-                className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
-              >
-                Shine like ⭐
-              </button>
-              
-              <button
-                onClick={handleButterflies}
-                className="bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
-              >
-                Fly like 🦋
-              </button>
-              
-              <button
-                onClick={handleFireworks}
-                className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
-              >
-                Sparkle like 🎆
-              </button>
-            </div>
-
-            {/* Special Message */}
-            <div className="animate-fadeIn animation-delay-1500">
-              <div className="bg-gradient-to-r from-pink-100 to-red-100 rounded-2xl p-6 border-2 border-pink-300">
-                <p className="text-xl md:text-2xl font-bold text-pink-700 mb-2">
-                  🎂 Happy Birthday, My Dearest Sameer! 🎂
-                </p>
-                <p className="text-lg text-gray-700">
-                  May this year bring you all the happiness, success, and love you deserve. 
-                  You make my world complete! 🌟
-                </p>
+              {/* Special Message */}
+              <div className="animate-fadeIn animation-delay-1500">
+                <div className="bg-gradient-to-r from-pink-100 to-red-100 rounded-2xl p-6 border-2 border-pink-300">
+                  <p className="text-xl md:text-2xl font-bold text-pink-700 mb-2">
+                    🎂 Happy Birthday, My Dearest Sameer! 🎂
+                  </p>
+                  <p className="text-lg text-gray-700">
+                    May this year bring you all the happiness, success, and love you deserve. 
+                    You make my world complete! 🌟
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
       {/* Animated Effects */}
       
