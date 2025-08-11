@@ -18,6 +18,10 @@
       "dest": "/manifest.json"
     },
     {
+      "src": "/Titanic-Theme.mp3",
+      "dest": "/Titanic-Theme.mp3"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }

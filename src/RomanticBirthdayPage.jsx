@@ -17,6 +17,38 @@ const RomanticBirthdayPage = () => {
       audioRef.current.volume = 0.3;
       audioRef.current.loop = true;
       
+      // Check if audio file is accessible
+      const checkAudioAccessibility = () => {
+        fetch('/Titanic-Theme.mp3', { method: 'HEAD' })
+          .then(response => {
+            if (response.ok) {
+              console.log('Audio file is accessible, status:', response.status);
+              console.log('Audio file size:', response.headers.get('content-length'));
+            } else {
+              console.error('Audio file not accessible, status:', response.status);
+              console.error('Response headers:', response.headers);
+            }
+          })
+          .catch(error => {
+            console.error('Error checking audio file accessibility:', error);
+            // Try alternative path for Vercel
+            fetch('/Titanic-Theme.mp3', { method: 'GET' })
+              .then(response => {
+                if (response.ok) {
+                  console.log('Audio file accessible via GET, status:', response.status);
+                } else {
+                  console.error('Audio file not accessible via GET, status:', response.status);
+                }
+              })
+              .catch(err2 => {
+                console.error('Both HEAD and GET failed:', err2);
+              });
+          });
+      };
+      
+      // Check accessibility after a short delay
+      setTimeout(checkAudioAccessibility, 1000);
+      
       // Function to start music
       const startMusic = () => {
         if (audioRef.current && audioRef.current.paused) {
@@ -189,6 +221,54 @@ const RomanticBirthdayPage = () => {
     }
   };
 
+  const reloadAudio = () => {
+    if (audioRef.current) {
+      console.log('Reloading audio...');
+      audioRef.current.load();
+      setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.play().then(() => {
+            setIsPlaying(true);
+            console.log('Audio reloaded and started successfully!');
+          }).catch(err => {
+            console.log('Audio reload failed:', err);
+          });
+        }
+      }, 500);
+    }
+  };
+
+  const tryAlternativeAudioLoading = () => {
+    console.log('Trying alternative audio loading methods...');
+    
+    // Method 1: Create new audio element
+    const newAudio = new Audio('/Titanic-Theme.mp3');
+    newAudio.volume = 0.3;
+    newAudio.loop = true;
+    
+    newAudio.addEventListener('canplaythrough', () => {
+      console.log('Alternative audio loaded successfully');
+      newAudio.play().then(() => {
+        setIsPlaying(true);
+        console.log('Alternative audio playing successfully');
+        // Replace the main audio ref
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        audioRef.current = newAudio;
+      }).catch(err => {
+        console.log('Alternative audio play failed:', err);
+      });
+    });
+    
+    newAudio.addEventListener('error', (e) => {
+      console.log('Alternative audio loading failed:', e);
+    });
+    
+    // Method 2: Try with different MIME type handling
+    newAudio.load();
+  };
+
   const handleHug = () => {
     forceStartMusic();
     setShowHearts(true);
@@ -236,11 +316,26 @@ const RomanticBirthdayPage = () => {
       {/* Background Music */}
       <audio
         ref={audioRef}
-        src="./Titanic-Theme.mp3"
+        src="/Titanic-Theme.mp3"
         preload="auto"
-        onError={(e) => console.error('Audio error:', e)}
+        crossOrigin="anonymous"
+        onError={(e) => {
+          console.error('Audio error:', e);
+          console.error('Audio error details:', e.target.error);
+          console.error('Audio network state:', e.target.networkState);
+          console.error('Audio ready state:', e.target.readyState);
+          console.error('Audio src:', e.target.src);
+          console.error('Audio currentSrc:', e.target.currentSrc);
+        }}
         onLoadStart={() => console.log('Audio loading started')}
         onCanPlay={() => console.log('Audio can play')}
+        onLoadedData={() => console.log('Audio data loaded')}
+        onCanPlayThrough={() => console.log('Audio can play through')}
+        onAbort={() => console.log('Audio loading aborted')}
+        onSuspend={() => console.log('Audio loading suspended')}
+        onProgress={() => console.log('Audio loading progress')}
+        onStalled={() => console.log('Audio loading stalled')}
+        onWaiting={() => console.log('Audio waiting for data')}
       />
       
       {/* Backup Audio Sources for Vercel */}
@@ -252,7 +347,7 @@ const RomanticBirthdayPage = () => {
       />
       <audio
         id="backup-audio-2"
-        src="Titanic-Theme.mp3"
+        src="/Titanic-Theme.mp3"
         preload="auto"
         style={{display: 'none'}}
       />
@@ -485,6 +580,31 @@ const RomanticBirthdayPage = () => {
         <div className="absolute top-8 left-8 text-sm text-pink-600 bg-white/80 px-3 py-1 rounded-full shadow-lg">
           {isPlaying ? '🎵 Music Playing' : '🔇 Start Music'}
         </div>
+
+        {/* Audio Control Button */}
+        <button
+          onClick={() => {
+            if (isPlaying) {
+              if (audioRef.current) {
+                audioRef.current.pause();
+                setIsPlaying(false);
+              }
+            } else {
+              forceStartMusic();
+            }
+          }}
+          className="absolute top-8 left-32 text-sm text-pink-600 bg-white/80 px-3 py-1 rounded-full shadow-lg hover:bg-pink-50 border border-pink-200"
+        >
+          {isPlaying ? '⏸️ Pause' : '▶️ Play'}
+        </button>
+
+        {/* Audio Status Debug Info */}
+        <div className="absolute top-16 left-8 text-xs text-gray-600 bg-white/90 px-2 py-1 rounded shadow-sm max-w-xs">
+          <div>Audio Src: {audioRef.current?.src || 'Not loaded'}</div>
+          <div>Ready State: {audioRef.current?.readyState || 'Unknown'}</div>
+          <div>Network State: {audioRef.current?.networkState || 'Unknown'}</div>
+          <div>Error: {audioRef.current?.error ? 'Yes' : 'No'}</div>
+        </div>
         
         {/* Vercel Debug Audio Button */}
         <button
@@ -550,6 +670,22 @@ const RomanticBirthdayPage = () => {
           className="absolute top-20 right-8 text-sm text-white bg-red-600 px-3 py-2 rounded-full shadow-lg border border-red-700 hover:bg-red-700 font-bold"
         >
           🚨 FORCE AUDIO
+        </button>
+
+        {/* Reload Audio Button */}
+        <button
+          onClick={reloadAudio}
+          className="absolute top-32 right-8 text-sm text-white bg-blue-600 px-3 py-2 rounded-full shadow-lg border border-blue-700 hover:bg-blue-700 font-bold"
+        >
+          🔄 Reload Audio
+        </button>
+
+        {/* Alternative Audio Loading Button */}
+        <button
+          onClick={tryAlternativeAudioLoading}
+          className="absolute top-44 right-8 text-sm text-white bg-green-600 px-3 py-2 rounded-full shadow-lg border border-green-700 hover:bg-green-700 font-bold"
+        >
+          🎵 Alt Audio
         </button>
       </div>
 
