@@ -12,262 +12,46 @@ const RomanticBirthdayPage = () => {
   const audioRef = useRef(null);
 
   useEffect(() => {
-    // Auto-play background music when component mounts
+    // Set up audio when component mounts
     if (audioRef.current) {
       audioRef.current.volume = 0.3;
       audioRef.current.loop = true;
       
-      // Check if audio file is accessible
-      const checkAudioAccessibility = () => {
-        fetch('/Titanic-Theme.mp3', { method: 'HEAD' })
-          .then(response => {
-            if (response.ok) {
-              console.log('Audio file is accessible, status:', response.status);
-              console.log('Audio file size:', response.headers.get('content-length'));
-            } else {
-              console.error('Audio file not accessible, status:', response.status);
-              console.error('Response headers:', response.headers);
-            }
-          })
-          .catch(error => {
-            console.error('Error checking audio file accessibility:', error);
-            // Try alternative path for Vercel
-            fetch('/Titanic-Theme.mp3', { method: 'GET' })
-              .then(response => {
-                if (response.ok) {
-                  console.log('Audio file accessible via GET, status:', response.status);
-                } else {
-                  console.error('Audio file not accessible via GET, status:', response.status);
-                }
-              })
-              .catch(err2 => {
-                console.error('Both HEAD and GET failed:', err2);
-              });
-          });
-      };
-      
-      // Check accessibility after a short delay
-      setTimeout(checkAudioAccessibility, 1000);
-      
-      // Function to start music
+      // Simple function to start music
       const startMusic = () => {
-        if (audioRef.current && audioRef.current.paused) {
+        if (audioRef.current && audioRef.current.paused && !isPlaying) {
           audioRef.current.play().then(() => {
             setIsPlaying(true);
-            console.log('Music started successfully!');
-            // Remove all listeners once music starts
-            removeAllListeners();
           }).catch(err => {
             console.log('Music start failed:', err);
           });
         }
       };
       
-      // Function to remove all event listeners
-      const removeAllListeners = () => {
-        document.removeEventListener('mousedown', startMusic);
-        document.removeEventListener('mousemove', startMusic);
-        document.removeEventListener('click', startMusic);
-        document.removeEventListener('touchstart', startMusic);
-        document.removeEventListener('keydown', startMusic);
-        document.removeEventListener('scroll', startMusic);
-        document.removeEventListener('wheel', startMusic);
-        window.removeEventListener('focus', startMusic);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        document.removeEventListener('pointerdown', startMusic);
-        document.removeEventListener('pointermove', startMusic);
-        document.removeEventListener('mouseover', startMusic);
-        document.removeEventListener('mouseenter', startMusic);
-      };
-      
-      // Handle visibility change
-      const handleVisibilityChange = () => {
-        if (!document.hidden && audioRef.current) {
-          startMusic();
-        }
-      };
-      
-      // Try immediate autoplay first
-      startMusic();
-      
-      // Set up interaction listeners for music start
-      // Add event listeners for immediate music start on any interaction
-      document.addEventListener('mousedown', startMusic);
-      document.addEventListener('mousemove', startMusic);
+      // Add click listener to the entire document
       document.addEventListener('click', startMusic);
       document.addEventListener('touchstart', startMusic);
-      document.addEventListener('keydown', startMusic);
-      document.addEventListener('scroll', startMusic);
-      document.addEventListener('wheel', startMusic);
-      window.addEventListener('focus', startMusic);
-      document.addEventListener('visibilitychange', handleVisibilityChange);
       
-      // Also try to start music when the page becomes visible
-      if (document.visibilityState === 'visible') {
-        setTimeout(startMusic, 100);
-      }
-      
-      // Try multiple times with delays (sometimes helps with autoplay)
-      setTimeout(startMusic, 500);
-      setTimeout(startMusic, 1000);
-      setTimeout(startMusic, 2000);
-      
-      // Try to start music when window gains focus
-      window.addEventListener('focus', startMusic);
-      
-      // Try to start music on any DOM interaction
-      document.addEventListener('pointerdown', startMusic);
-      document.addEventListener('pointermove', startMusic);
-      
-      // Try to start music on hover events (very aggressive approach)
-      const allElements = document.querySelectorAll('button, div, span, p, h1, h2, h3');
-      allElements.forEach(element => {
-        element.addEventListener('mouseenter', startMusic);
-      });
-      
-      // Try to start music on any mouse movement anywhere on the page
-      document.addEventListener('mouseover', startMusic);
-      
-      // Very aggressive approach - try to start music on every mouse movement
-      let mouseMoveAttempts = 0;
-      const aggressiveMouseMove = () => {
-        mouseMoveAttempts++;
-        if (mouseMoveAttempts <= 10) { // Limit attempts to avoid performance issues
-          startMusic();
-        }
-        if (mouseMoveAttempts > 10) {
-          document.removeEventListener('mousemove', aggressiveMouseMove);
-        }
+      // Cleanup function
+      return () => {
+        document.removeEventListener('click', startMusic);
+        document.removeEventListener('touchstart', startMusic);
       };
-      document.addEventListener('mousemove', aggressiveMouseMove);
-      
-      // Try to start music when page is fully loaded
-      if (document.readyState === 'complete') {
-        setTimeout(startMusic, 100);
-      } else {
-        window.addEventListener('load', () => {
-          setTimeout(startMusic, 100);
-        });
-      }
-      
-      // VERCEL AUDIO TEST - Test all audio sources on load
-      setTimeout(() => {
-        console.log('🔍 VERCEL AUDIO TEST STARTING...');
-        
-        // Test main audio
-        if (audioRef.current) {
-          console.log('Testing main audio:', audioRef.current.src);
-          audioRef.current.play().then(() => {
-            console.log('✅ Main audio works on Vercel!');
-            setIsPlaying(true);
-          }).catch(err => {
-            console.log('❌ Main audio failed:', err);
-            
-            // Test backup 1
-            const backup1 = document.getElementById('backup-audio-1');
-            if (backup1) {
-              console.log('Testing backup audio 1:', backup1.src);
-              backup1.play().then(() => {
-                console.log('✅ Backup 1 works on Vercel!');
-                setIsPlaying(true);
-              }).catch(err2 => {
-                console.log('❌ Backup 1 failed:', err2);
-                
-                // Test backup 2
-                const backup2 = document.getElementById('backup-audio-2');
-                if (backup2) {
-                  console.log('Testing backup audio 2:', backup2.src);
-                  backup2.play().then(() => {
-                    console.log('✅ Backup 2 works on Vercel!');
-                    setIsPlaying(true);
-                  }).catch(err3 => {
-                    console.log('❌ ALL AUDIO SOURCES FAILED ON VERCEL!');
-                    console.log('Error 1:', err);
-                    console.log('Error 2:', err2);
-                    console.log('Error 3:', err3);
-                  });
-                }
-              });
-            }
-          });
-        }
-      }, 3000); // Wait 3 seconds for page to fully load
     }
-  }, []); // Empty dependency array since we only want this to run once
+  }, [isPlaying]);
 
-  // Enhanced function that tries multiple times to start music
+  // Simple function to start music
   const forceStartMusic = () => {
-    if (!isPlaying && audioRef.current) {
-      // Try multiple times with different approaches
-      const tryStart = () => {
-        audioRef.current.play().then(() => {
-          setIsPlaying(true);
-          console.log('Music started via force start!');
-        }).catch(err => {
-          console.log('Force start failed, trying again...');
-          // Try again after a short delay
-          setTimeout(() => {
-            if (!isPlaying && audioRef.current) {
-              audioRef.current.play().then(() => {
-                setIsPlaying(true);
-                console.log('Music started on retry!');
-              }).catch(err2 => console.log('Retry failed:', err2));
-            }
-          }, 100);
-        });
-      };
-      
-      tryStart();
-    }
-  };
-
-  const reloadAudio = () => {
-    if (audioRef.current) {
-      console.log('Reloading audio...');
-      audioRef.current.load();
-      setTimeout(() => {
-        if (audioRef.current) {
-          audioRef.current.play().then(() => {
-            setIsPlaying(true);
-            console.log('Audio reloaded and started successfully!');
-          }).catch(err => {
-            console.log('Audio reload failed:', err);
-          });
-        }
-      }, 500);
-    }
-  };
-
-  const tryAlternativeAudioLoading = () => {
-    console.log('Trying alternative audio loading methods...');
-    
-    // Method 1: Create new audio element
-    const newAudio = new Audio('/Titanic-Theme.mp3');
-    newAudio.volume = 0.3;
-    newAudio.loop = true;
-    
-    newAudio.addEventListener('canplaythrough', () => {
-      console.log('Alternative audio loaded successfully');
-      newAudio.play().then(() => {
+    if (audioRef.current && !isPlaying) {
+      audioRef.current.play().then(() => {
         setIsPlaying(true);
-        console.log('Alternative audio playing successfully');
-        // Replace the main audio ref
-        if (audioRef.current) {
-          audioRef.current.pause();
-        }
-        audioRef.current = newAudio;
       }).catch(err => {
-        console.log('Alternative audio play failed:', err);
+        console.log('Music start failed:', err);
       });
-    });
-    
-    newAudio.addEventListener('error', (e) => {
-      console.log('Alternative audio loading failed:', e);
-    });
-    
-    // Method 2: Try with different MIME type handling
-    newAudio.load();
+    }
   };
+
+
 
   const handleHug = () => {
     forceStartMusic();
@@ -318,77 +102,11 @@ const RomanticBirthdayPage = () => {
         ref={audioRef}
         src="/Titanic-Theme.mp3"
         preload="auto"
-        crossOrigin="anonymous"
-        onError={(e) => {
-          console.error('Audio error:', e);
-          console.error('Audio error details:', e.target.error);
-          console.error('Audio network state:', e.target.networkState);
-          console.error('Audio ready state:', e.target.readyState);
-          console.error('Audio src:', e.target.src);
-          console.error('Audio currentSrc:', e.target.currentSrc);
-        }}
-        onLoadStart={() => console.log('Audio loading started')}
-        onCanPlay={() => console.log('Audio can play')}
-        onLoadedData={() => console.log('Audio data loaded')}
-        onCanPlayThrough={() => console.log('Audio can play through')}
-        onAbort={() => console.log('Audio loading aborted')}
-        onSuspend={() => console.log('Audio loading suspended')}
-        onProgress={() => console.log('Audio loading progress')}
-        onStalled={() => console.log('Audio loading stalled')}
-        onWaiting={() => console.log('Audio waiting for data')}
+        onError={(e) => console.error('Audio error:', e)}
+        onCanPlay={() => console.log('Audio ready to play')}
       />
       
-      {/* Backup Audio Sources for Vercel */}
-      <audio
-        id="backup-audio-1"
-        src="/Titanic-Theme.mp3"
-        preload="auto"
-        style={{display: 'none'}}
-      />
-      <audio
-        id="backup-audio-2"
-        src="/Titanic-Theme.mp3"
-        preload="auto"
-        style={{display: 'none'}}
-      />
-      
-      {/* Hidden Audio Trigger - This will definitely start music */}
-      <button
-        onClick={() => {
-          if (audioRef.current && audioRef.current.paused) {
-            audioRef.current.play().then(() => {
-              setIsPlaying(true);
-              console.log('Music started via hidden trigger!');
-            }).catch(err => console.log('Hidden trigger failed:', err));
-          }
-        }}
-        className="absolute top-0 left-0 w-1 h-1 opacity-0 pointer-events-none z-50"
-        aria-label="Start music"
-      />
-      
-      {/* Vercel Audio Trigger - Multiple fallback methods */}
-      <div className="absolute top-0 left-0 w-2 h-2 opacity-0 pointer-events-none z-50">
-        <button
-          onClick={() => {
-            console.log('Vercel trigger clicked');
-            if (audioRef.current) {
-              audioRef.current.play().then(() => {
-                setIsPlaying(true);
-                console.log('Vercel trigger success!');
-              }).catch(err => {
-                console.log('Vercel trigger failed:', err);
-                // Try alternative method
-                audioRef.current.currentTime = 0;
-                audioRef.current.play().then(() => {
-                  setIsPlaying(true);
-                  console.log('Vercel trigger retry success!');
-                }).catch(err2 => console.log('Vercel trigger retry failed:', err2));
-              });
-            }
-          }}
-          className="w-full h-full bg-transparent"
-        />
-      </div>
+
       
       {/* Floating Hearts Background */}
       <div className="absolute inset-0 pointer-events-none">
@@ -575,118 +293,6 @@ const RomanticBirthdayPage = () => {
             🎵
           </div>
         )}
-        
-        {/* Music Status Indicator - Always visible */}
-        <div className="absolute top-8 left-8 text-sm text-pink-600 bg-white/80 px-3 py-1 rounded-full shadow-lg">
-          {isPlaying ? '🎵 Music Playing' : '🔇 Start Music'}
-        </div>
-
-        {/* Audio Control Button */}
-        <button
-          onClick={() => {
-            if (isPlaying) {
-              if (audioRef.current) {
-                audioRef.current.pause();
-                setIsPlaying(false);
-              }
-            } else {
-              forceStartMusic();
-            }
-          }}
-          className="absolute top-8 left-32 text-sm text-pink-600 bg-white/80 px-3 py-1 rounded-full shadow-lg hover:bg-pink-50 border border-pink-200"
-        >
-          {isPlaying ? '⏸️ Pause' : '▶️ Play'}
-        </button>
-
-        {/* Audio Status Debug Info */}
-        <div className="absolute top-16 left-8 text-xs text-gray-600 bg-white/90 px-2 py-1 rounded shadow-sm max-w-xs">
-          <div>Audio Src: {audioRef.current?.src || 'Not loaded'}</div>
-          <div>Ready State: {audioRef.current?.readyState || 'Unknown'}</div>
-          <div>Network State: {audioRef.current?.networkState || 'Unknown'}</div>
-          <div>Error: {audioRef.current?.error ? 'Yes' : 'No'}</div>
-        </div>
-        
-        {/* Vercel Debug Audio Button */}
-        <button
-          onClick={() => {
-            console.log('Debug button clicked');
-            console.log('Audio ref:', audioRef.current);
-            console.log('Audio src:', audioRef.current?.src);
-            console.log('Audio readyState:', audioRef.current?.readyState);
-            
-            if (audioRef.current) {
-              audioRef.current.play().then(() => {
-                setIsPlaying(true);
-                console.log('Debug button success!');
-              }).catch(err => {
-                console.log('Debug button failed:', err);
-                alert(`Audio Error: ${err.message}. Check console for details.`);
-              });
-            }
-          }}
-          className="absolute top-8 right-8 text-xs text-red-600 bg-white/90 px-2 py-1 rounded-full shadow-lg border border-red-300 hover:bg-red-50"
-        >
-          🔧 Debug Audio
-        </button>
-        
-        {/* SUPER AGGRESSIVE VERCEL AUDIO TRIGGER */}
-        <button
-          onClick={() => {
-            console.log('SUPER AGGRESSIVE TRIGGER CLICKED!');
-            
-            // Try main audio first
-            if (audioRef.current) {
-              audioRef.current.play().then(() => {
-                setIsPlaying(true);
-                console.log('Main audio success!');
-              }).catch(err => {
-                console.log('Main audio failed, trying backup 1...');
-                
-                // Try backup audio 1
-                const backup1 = document.getElementById('backup-audio-1');
-                if (backup1) {
-                  backup1.play().then(() => {
-                    setIsPlaying(true);
-                    console.log('Backup 1 success!');
-                  }).catch(err2 => {
-                    console.log('Backup 1 failed, trying backup 2...');
-                    
-                    // Try backup audio 2
-                    const backup2 = document.getElementById('backup-audio-2');
-                    if (backup2) {
-                      backup2.play().then(() => {
-                        setIsPlaying(true);
-                        console.log('Backup 2 success!');
-                      }).catch(err3 => {
-                        console.log('All audio failed:', err3);
-                        alert('ALL AUDIO SOURCES FAILED! Check console for details.');
-                      });
-                    }
-                  });
-                }
-              });
-            }
-          }}
-          className="absolute top-20 right-8 text-sm text-white bg-red-600 px-3 py-2 rounded-full shadow-lg border border-red-700 hover:bg-red-700 font-bold"
-        >
-          🚨 FORCE AUDIO
-        </button>
-
-        {/* Reload Audio Button */}
-        <button
-          onClick={reloadAudio}
-          className="absolute top-32 right-8 text-sm text-white bg-blue-600 px-3 py-2 rounded-full shadow-lg border border-blue-700 hover:bg-blue-700 font-bold"
-        >
-          🔄 Reload Audio
-        </button>
-
-        {/* Alternative Audio Loading Button */}
-        <button
-          onClick={tryAlternativeAudioLoading}
-          className="absolute top-44 right-8 text-sm text-white bg-green-600 px-3 py-2 rounded-full shadow-lg border border-green-700 hover:bg-green-700 font-bold"
-        >
-          🎵 Alt Audio
-        </button>
       </div>
 
       {/* Main Content */}
