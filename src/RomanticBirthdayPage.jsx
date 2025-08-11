@@ -193,8 +193,11 @@ const RomanticBirthdayPage = () => {
       {/* Background Music */}
       <audio
         ref={audioRef}
-        src="/Titanic-Theme.mp3"
+        src="./Titanic-Theme.mp3"
         preload="auto"
+        onError={(e) => console.error('Audio error:', e)}
+        onLoadStart={() => console.log('Audio loading started')}
+        onCanPlay={() => console.log('Audio can play')}
       />
       
       {/* Hidden Audio Trigger - This will definitely start music */}
@@ -210,6 +213,30 @@ const RomanticBirthdayPage = () => {
         className="absolute top-0 left-0 w-1 h-1 opacity-0 pointer-events-none z-50"
         aria-label="Start music"
       />
+      
+      {/* Vercel Audio Trigger - Multiple fallback methods */}
+      <div className="absolute top-0 left-0 w-2 h-2 opacity-0 pointer-events-none z-50">
+        <button
+          onClick={() => {
+            console.log('Vercel trigger clicked');
+            if (audioRef.current) {
+              audioRef.current.play().then(() => {
+                setIsPlaying(true);
+                console.log('Vercel trigger success!');
+              }).catch(err => {
+                console.log('Vercel trigger failed:', err);
+                // Try alternative method
+                audioRef.current.currentTime = 0;
+                audioRef.current.play().then(() => {
+                  setIsPlaying(true);
+                  console.log('Vercel trigger retry success!');
+                }).catch(err2 => console.log('Vercel trigger retry failed:', err2));
+              });
+            }
+          }}
+          className="w-full h-full bg-transparent"
+        />
+      </div>
       
       {/* Floating Hearts Background */}
       <div className="absolute inset-0 pointer-events-none">
@@ -399,8 +426,31 @@ const RomanticBirthdayPage = () => {
         
         {/* Music Status Indicator - Always visible */}
         <div className="absolute top-8 left-8 text-sm text-pink-600 bg-white/80 px-3 py-1 rounded-full shadow-lg">
-          {isPlaying ? '🎵 Music Playing' : '🔇 Click Anywhere to Start Music'}
+          {isPlaying ? '🎵 Music Playing' : '🔇 Start Music'}
         </div>
+        
+        {/* Vercel Debug Audio Button */}
+        <button
+          onClick={() => {
+            console.log('Debug button clicked');
+            console.log('Audio ref:', audioRef.current);
+            console.log('Audio src:', audioRef.current?.src);
+            console.log('Audio readyState:', audioRef.current?.readyState);
+            
+            if (audioRef.current) {
+              audioRef.current.play().then(() => {
+                setIsPlaying(true);
+                console.log('Debug button success!');
+              }).catch(err => {
+                console.log('Debug button failed:', err);
+                alert(`Audio Error: ${err.message}. Check console for details.`);
+              });
+            }
+          }}
+          className="absolute top-8 right-8 text-xs text-red-600 bg-white/90 px-2 py-1 rounded-full shadow-lg border border-red-300 hover:bg-red-50"
+        >
+          🔧 Debug Audio
+        </button>
       </div>
 
       {/* Main Content */}
