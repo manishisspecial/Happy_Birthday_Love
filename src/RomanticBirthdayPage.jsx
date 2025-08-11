@@ -117,6 +117,49 @@ const RomanticBirthdayPage = () => {
           setTimeout(startMusic, 100);
         });
       }
+      
+      // VERCEL AUDIO TEST - Test all audio sources on load
+      setTimeout(() => {
+        console.log('🔍 VERCEL AUDIO TEST STARTING...');
+        
+        // Test main audio
+        if (audioRef.current) {
+          console.log('Testing main audio:', audioRef.current.src);
+          audioRef.current.play().then(() => {
+            console.log('✅ Main audio works on Vercel!');
+            setIsPlaying(true);
+          }).catch(err => {
+            console.log('❌ Main audio failed:', err);
+            
+            // Test backup 1
+            const backup1 = document.getElementById('backup-audio-1');
+            if (backup1) {
+              console.log('Testing backup audio 1:', backup1.src);
+              backup1.play().then(() => {
+                console.log('✅ Backup 1 works on Vercel!');
+                setIsPlaying(true);
+              }).catch(err2 => {
+                console.log('❌ Backup 1 failed:', err2);
+                
+                // Test backup 2
+                const backup2 = document.getElementById('backup-audio-2');
+                if (backup2) {
+                  console.log('Testing backup audio 2:', backup2.src);
+                  backup2.play().then(() => {
+                    console.log('✅ Backup 2 works on Vercel!');
+                    setIsPlaying(true);
+                  }).catch(err3 => {
+                    console.log('❌ ALL AUDIO SOURCES FAILED ON VERCEL!');
+                    console.log('Error 1:', err);
+                    console.log('Error 2:', err2);
+                    console.log('Error 3:', err3);
+                  });
+                }
+              });
+            }
+          });
+        }
+      }, 3000); // Wait 3 seconds for page to fully load
     }
   }, []); // Empty dependency array since we only want this to run once
 
@@ -198,6 +241,20 @@ const RomanticBirthdayPage = () => {
         onError={(e) => console.error('Audio error:', e)}
         onLoadStart={() => console.log('Audio loading started')}
         onCanPlay={() => console.log('Audio can play')}
+      />
+      
+      {/* Backup Audio Sources for Vercel */}
+      <audio
+        id="backup-audio-1"
+        src="/Titanic-Theme.mp3"
+        preload="auto"
+        style={{display: 'none'}}
+      />
+      <audio
+        id="backup-audio-2"
+        src="Titanic-Theme.mp3"
+        preload="auto"
+        style={{display: 'none'}}
       />
       
       {/* Hidden Audio Trigger - This will definitely start music */}
@@ -450,6 +507,49 @@ const RomanticBirthdayPage = () => {
           className="absolute top-8 right-8 text-xs text-red-600 bg-white/90 px-2 py-1 rounded-full shadow-lg border border-red-300 hover:bg-red-50"
         >
           🔧 Debug Audio
+        </button>
+        
+        {/* SUPER AGGRESSIVE VERCEL AUDIO TRIGGER */}
+        <button
+          onClick={() => {
+            console.log('SUPER AGGRESSIVE TRIGGER CLICKED!');
+            
+            // Try main audio first
+            if (audioRef.current) {
+              audioRef.current.play().then(() => {
+                setIsPlaying(true);
+                console.log('Main audio success!');
+              }).catch(err => {
+                console.log('Main audio failed, trying backup 1...');
+                
+                // Try backup audio 1
+                const backup1 = document.getElementById('backup-audio-1');
+                if (backup1) {
+                  backup1.play().then(() => {
+                    setIsPlaying(true);
+                    console.log('Backup 1 success!');
+                  }).catch(err2 => {
+                    console.log('Backup 1 failed, trying backup 2...');
+                    
+                    // Try backup audio 2
+                    const backup2 = document.getElementById('backup-audio-2');
+                    if (backup2) {
+                      backup2.play().then(() => {
+                        setIsPlaying(true);
+                        console.log('Backup 2 success!');
+                      }).catch(err3 => {
+                        console.log('All audio failed:', err3);
+                        alert('ALL AUDIO SOURCES FAILED! Check console for details.');
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          }}
+          className="absolute top-20 right-8 text-sm text-white bg-red-600 px-3 py-2 rounded-full shadow-lg border border-red-700 hover:bg-red-700 font-bold"
+        >
+          🚨 FORCE AUDIO
         </button>
       </div>
 
